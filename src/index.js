@@ -13,6 +13,7 @@ app.use(router);
 router.use((req, res, next) => {
   if(req.path === '/handler' && req.method === 'POST') {
     let length = req.headers['content-length'];
+    console.log(req.headers);
     if(length === 0) next();
     const filename = Math.random().toString(36).substr(2);
     const filepath = path.resolve('/tmp/', filename)

@@ -21,6 +21,12 @@ module.exports = function (router) {
     const file = req.file;
     if(!cmd) return res.error('cmd');
     if(!file && !url) return res.error('file');
+    const command = cmd.split('/');
+    if(command[1] && command[1] === 'info') {
+      const stat = fs.statSync(file);
+      const total = stat.size;
+      return res.success({cmd, file, url, total});
+    }
     if(url) {
       const filename = Math.random().toString(36).substr(2);
       const filepath = path.resolve('/tmp/', filename);

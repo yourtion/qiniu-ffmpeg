@@ -1,4 +1,4 @@
-FROM yourtion/node-ffmpeg
+FROM alpine:3.4
 
 WORKDIR /app
 

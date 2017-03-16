@@ -9,11 +9,11 @@ module.exports = function (router) {
     res.success('Hello, QiNiu');
   });
 
-  router.get('/health', function* (req, res) {
+  router.get('/health', function (req, res) {
     res.end('ok');
   });
 
-  router.post('/handler', function* (req, res) {
+  router.post('/handler', function (req, res) {
     res.end('ok');
   });
 

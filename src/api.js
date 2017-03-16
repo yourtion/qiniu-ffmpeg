@@ -15,7 +15,12 @@ module.exports = function (router) {
 
   router.post('/handler', function (req, res) {
     console.log(req.file);
-    res.end('ok');
+    const cmd = req.query.cmd;
+    const url = req.query.url;
+    const file = req.file;
+    if(!cmd) return res.error('cmd');
+    if(!file && !url) return res.error('file');
+    res.success({cmd, file, url});
   });
 
 };

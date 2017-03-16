@@ -4,6 +4,7 @@ global.$ = {};
 
 const express = require('express');
 const fs = require('fs');
+const path = require('path');
 const app = $.app = express();
 const router = new express.Router();
 
@@ -14,14 +15,15 @@ router.use((req, res, next) => {
     let length = req.headers['content-length'];
     if(length === 0) next();
     const filename = Math.random().toString(36).substr(2);
-    const writerStream = fs.createWriteStream(filename);
+    const filepath = path.resolve('/tmp/', filename)
+    const writerStream = fs.createWriteStream(filepath);
     writerStream.on('finish', next);
     req.on('data', (data) => {
       length -= data.length;
       writerStream.write(data);
     });
     req.on('end', (data) => {
-      req.file = filename;
+      req.file = filepath;
       writerStream.end();
     });
   } else {

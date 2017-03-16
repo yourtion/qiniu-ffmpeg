@@ -3,10 +3,31 @@
 global.$ = {};
 
 const express = require('express');
+const fs = require('fs');
 const app = $.app = express();
 const router = new express.Router();
 
 app.use(router);
+
+router.use((req, res, next) => {
+  if(req.path === '/handler' && req.method === 'POST') {
+    let length = req.headers['content-length'];
+    if(length === 0) next();
+    const filename = Math.random().toString(36).substr(2);
+    const writerStream = fs.createWriteStream(filename);
+    writerStream.on('finish', next);
+    req.on('data', (data) => {
+      length -= data.length;
+      writerStream.write(data);
+    });
+    req.on('end', (data) => {
+      req.file = filename;
+      writerStream.end();
+    });
+  } else {
+    next();
+  }
+})
 
 router.use((req, res, next) => {
   res.error = (err, code) => {
@@ -28,6 +49,7 @@ router.use((req, res, next) => {
 require('./api.js')(router);
 
 router.use((err, req, res, next) => {
+  console.log(err);
   res.error(err);
   next();
 });

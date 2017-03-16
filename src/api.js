@@ -14,6 +14,7 @@ module.exports = function (router) {
   });
 
   router.post('/handler', function (req, res) {
+    console.log(req.file);
     res.end('ok');
   });
 

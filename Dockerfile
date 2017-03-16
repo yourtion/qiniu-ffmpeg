@@ -2,10 +2,12 @@ FROM yourtion/node-ffmpeg
 
 WORKDIR /app
 
-COPY ./app/package.json /app/package.json
-RUN npm install --production
+COPY package.json /app/package.json
+# RUN npm install --production
 
-COPY ./app/src /app/src
+COPY ./src /app/src
+
+RUN ls 
 
 EXPOSE 9100
 CMD [ "npm", "start" ]

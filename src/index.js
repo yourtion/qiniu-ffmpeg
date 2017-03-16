@@ -3,13 +3,10 @@
 global.$ = {};
 
 const express = require('express');
-const bodyParser = require('body-parser');
 const app = $.app = express();
 const router = new express.Router();
 
 app.use(router);
-router.use(bodyParser.json());
-router.use(bodyParser.urlencoded({ extended: false }));
 
 router.use((req, res, next) => {
   res.error = (err, code) => {
@@ -20,7 +17,6 @@ router.use((req, res, next) => {
     });
   };
   res.success = (data) => {
-    middlewares.mapResult(data);
     res.json({
       success: true,
       result: data || {},

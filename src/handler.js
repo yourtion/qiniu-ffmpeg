@@ -17,6 +17,8 @@ module.exports = function(req, res) {
     return res.success({cmd, file, url, total});
   }
 
+  const blurV = command[1] || 10;
+
   if(url) {
     res.contentType('mp4');
     // const filename = Math.random().toString(36).substr(2) + '.mp4';
@@ -26,7 +28,7 @@ module.exports = function(req, res) {
     //   console.log(info);
     //   console.log('progress ' + info + '%');
     // })
-    .videoFilters('boxblur=180:1:cr=0:ar=0')
+    .videoFilters('boxblur=1:'+ blurV +':cr=0:ar=0')
     .on('end', function() {
       const stat = fs.statSync(filepath);
       const total = stat.size;
@@ -47,7 +49,7 @@ module.exports = function(req, res) {
     //   console.log(info);
     //   console.log('progress ' + info + '%');
     // })
-    .videoFilters('boxblur=180:1:cr=0:ar=0')
+    .videoFilters('boxblur=1:'+ blurV +':cr=0:ar=0')
     .on('end', function() {
       // console.log(filepath);
       const stat = fs.statSync(filepath);

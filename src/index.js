@@ -13,8 +13,8 @@ app.use(router);
 router.use((req, res, next) => {
   if(req.path === '/handler' && req.method === 'POST') {
     let length = req.headers['content-length'];
-    console.log(req.headers);
-    if(length === 0) next();
+    console.log(JSON.stringify(req.headers));
+    if(length == 0) return next();
     const filename = Math.random().toString(36).substr(2);
     const filepath = path.resolve('/tmp/', filename)
     const writerStream = fs.createWriteStream(filepath);

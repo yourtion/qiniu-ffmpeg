@@ -7,6 +7,7 @@ module.exports = function(req, res) {
   const cmd = req.query.cmd;
   const url = req.query.url;
   const file = req.file;
+  const startTime = Date.now();
   if(!cmd) return res.error('cmd');
   if(!file && !url) return res.error('file');
   const command = cmd.split('/');
@@ -29,6 +30,7 @@ module.exports = function(req, res) {
     // })
     .videoFilters('boxblur=1:'+ blurV +':cr=0:ar=0')
     .on('end', function() {
+      console.log('end', filepath, Date.now() - startTime);
       const stat = fs.statSync(filepath);
       const total = stat.size;
       res.writeHead(200, { 'Content-Length': total, 'Content-Type': 'video/mp4' });

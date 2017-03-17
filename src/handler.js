@@ -1,6 +1,7 @@
 const fs = require('fs');
-var http = require('http');
+const http = require('http');
 const path = require('path');
+const ffmpeg = require('fluent-ffmpeg');
 
 module.exports = function(req, res) {
   const cmd = req.query.cmd;
@@ -15,27 +16,51 @@ module.exports = function(req, res) {
     const total = stat.size;
     return res.success({cmd, file, url, total});
   }
-  
+
   if(url) {
-    const filename = Math.random().toString(36).substr(2);
-    const filepath = path.resolve('/tmp/', filename);
-    const video = fs.createWriteStream(filepath);
-    video.on('finish', () => {
-      video.close(() => {
-        const stat = fs.statSync(filepath);
-        const total = stat.size;
-        res.writeHead(200, { 'Content-Length': total, 'Content-Type': 'video/mp4' });
-        fs.createReadStream(filepath).pipe(res);
-      });
-    });
-    const request = http.get(url, (response) => {
-      response.pipe(video);
-      console.log(url);
-    });
+    res.contentType('mp4');
+    // const filename = Math.random().toString(36).substr(2) + '.mp4';
+    // const filepath = path.resolve('/tmp/', filename)
+    ffmpeg(url)
+    // .on('progress', function(info) {
+    //   console.log(info);
+    //   console.log('progress ' + info + '%');
+    // })
+    .videoFilters('boxblur=180:1:cr=0:ar=0')
+    .on('end', function() {
+      const stat = fs.statSync(filepath);
+      const total = stat.size;
+      res.writeHead(200, { 'Content-Length': total, 'Content-Type': 'video/mp4' });
+      fs.createReadStream(filepath).pipe(res);
+    })
+    .on('error', function(err) {
+      res.error(err);
+      console.log('an error happened: ' + err.message);
+    })
+    .save(filepath);
   } else {
-    const stat = fs.statSync(file);
-    const total = stat.size;
-    res.writeHead(200, { 'Content-Length': total, 'Content-Type': 'video/mp4' });
-    fs.createReadStream(file).pipe(res);
+    const filename = Math.random().toString(36).substr(2) + '.mp4';
+    const filepath = path.resolve('/tmp/', filename)
+    // var stream = fs.createWriteStream(filepath)
+    ffmpeg(file)
+    // .on('progress', function(info) {
+    //   console.log(info);
+    //   console.log('progress ' + info + '%');
+    // })
+    .videoFilters('boxblur=180:1:cr=0:ar=0')
+    .on('end', function() {
+      // console.log(filepath);
+      const stat = fs.statSync(filepath);
+      const total = stat.size;
+      res.writeHead(200, { 'Content-Length': total, 'Content-Type': 'video/mp4' });
+      fs.createReadStream(filepath).pipe(res);
+      // console.log('file has been converted succesfully');
+    })
+    .on('error', function(err) {
+      res.error(err);
+      console.log('an error happened: ' + err.message);
+    })
+    // save to file
+    .save(filepath);
   }
 };

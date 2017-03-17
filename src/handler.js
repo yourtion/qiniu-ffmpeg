@@ -19,10 +19,9 @@ module.exports = function(req, res) {
 
   const blurV = command[1] || 10;
 
+  const filename = Math.random().toString(36).substr(2) + '.mp4';
+  const filepath = path.resolve('/tmp/', filename)
   if(url) {
-    res.contentType('mp4');
-    // const filename = Math.random().toString(36).substr(2) + '.mp4';
-    // const filepath = path.resolve('/tmp/', filename)
     ffmpeg(url)
     // .on('progress', function(info) {
     //   console.log(info);
@@ -41,14 +40,7 @@ module.exports = function(req, res) {
     })
     .save(filepath);
   } else {
-    const filename = Math.random().toString(36).substr(2) + '.mp4';
-    const filepath = path.resolve('/tmp/', filename)
-    // var stream = fs.createWriteStream(filepath)
     ffmpeg(file)
-    // .on('progress', function(info) {
-    //   console.log(info);
-    //   console.log('progress ' + info + '%');
-    // })
     .videoFilters('boxblur=1:'+ blurV +':cr=0:ar=0')
     .on('end', function() {
       // console.log(filepath);

@@ -18,39 +18,52 @@ module.exports = function(req, res) {
     return res.success({cmd, file, url, total});
   }
 
-  const blurV = command[1] || 10;
+  const blurH = command[1] || 48;
+  const blurW = command[2] || 1;
+  const blurC = command[3] || 10;
+  const blurA = command[4] || 10;
+
+  const p = `boxblur=${ blurH }:${ blurW }:cr=${ blurC }:ar=${ blurA }`
 
   const filename = Math.random().toString(36).substr(2) + '.mp4';
   const filepath = path.resolve('/tmp/', filename)
   if(url) {
+    res.contentType('mp4');
     ffmpeg(url)
-    // .on('progress', function(info) {
-    //   console.log(info);
-    //   console.log('progress ' + info + '%');
-    // })
-    .videoFilters('boxblur=1:'+ blurV +':cr=0:ar=0')
+    .format('mp4')
+    .outputOptions([
+            '-profile:v', 'high',
+            '-strict', '-2',
+            '-threads', '0'
+        ])
+    .on('progress', function(info) {
+      console.log(info);
+      console.log('progress ' + info + '%');
+    })
+    .videoFilters(p)
+    .on('end', function() {
+      console.log('end', filepath, Date.now() - startTime);
+      // const stat = fs.statSync(filepath);
+      // const total = stat.size;
+      
+      // fs.createReadStream(filepath).pipe(res);
+    })
+    .on('error', function(err, stdout, stderr) {
+      console.log("ffmpeg stdout:\n" + stdout);
+      console.log("ffmpeg stderr:\n" + stderr);
+      console.log('an error happened: ' + err.message);
+      // res.error(err);
+    })
+   .pipe(res, { end: true });
+  } else {
+    ffmpeg(file)
+    .videoFilters(p)
     .on('end', function() {
       console.log('end', filepath, Date.now() - startTime);
       const stat = fs.statSync(filepath);
       const total = stat.size;
       res.writeHead(200, { 'Content-Length': total, 'Content-Type': 'video/mp4' });
       fs.createReadStream(filepath).pipe(res);
-    })
-    .on('error', function(err) {
-      res.error(err);
-      console.log('an error happened: ' + err.message);
-    })
-    .save(filepath);
-  } else {
-    ffmpeg(file)
-    .videoFilters('boxblur=1:'+ blurV +':cr=0:ar=0')
-    .on('end', function() {
-      // console.log(filepath);
-      const stat = fs.statSync(filepath);
-      const total = stat.size;
-      res.writeHead(200, { 'Content-Length': total, 'Content-Type': 'video/mp4' });
-      fs.createReadStream(filepath).pipe(res);
-      // console.log('file has been converted succesfully');
     })
     .on('error', function(err) {
       res.error(err);
